@@ -12,15 +12,15 @@ library(stringr)
 library(ggplot2)
 
 #  Load environmental spatial data files created in spat_dat_exp.R script
-load(file="C:/Users/Sara/Desktop/SEARRP/raw_spat_dat/trans_crop_dat/elev_250m_c.Rdata")
-load(file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/hydro_vec_c.Rdata")
-load(file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/log_rds_c.Rdata")
-load(file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/for_cov_c.Rdata")
-load(file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/border_sabah_d.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/elev_250m_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
 
 #  Source raster_to_polygon function and adj_species_poly function
-source("C:/Users/Sara/Desktop/SEARRP/scripts/raster_to_polygon_fun.R")
-source("C:/Users/Sara/Desktop/SEARRP/scripts/adj_species_poly_fun.R")
+source("C:/Users/saraw/Documents/SEARRP/scripts/raster_to_polygon_fun.R")
+source("C:/Users/saraw/Documents/SEARRP/scripts/adj_species_poly_fun.R")
 
 #  Run adj_species_poly function for mammals
 adj_spp_poly_fun(dat = "C:/Users/Sara/Desktop/SEARRP/processed_excel_data/sabah_mammals_threatened.csv",

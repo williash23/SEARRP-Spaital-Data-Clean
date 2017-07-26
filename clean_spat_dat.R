@@ -8,16 +8,20 @@ library(raster)
 library(dplyr) 
 library(maptools)
 library(rgeos)
+library(sf)
 ## install issue use: install.packages('xxxx', repos = 'http://cran.cnr.berkeley.edu/')
 
 
 #  General map and extent layers
 
-#  Basic information on the bonding box of Sabah (could be used for cropping) and the CRS that can be used 
+#  Basic information on the bounding box of Sabah (could be used for cropping) and the CRS that can be used 
 #   to link spatial data layers.
 sabah_bb_latlong <- extent(115.1531, 119.6081, 3.981738, 7.857259)
+sabah_bb_latlong_p <- as(sabah_bb_latlong, 'SpatialPolygons')
+crs(sabah_bb_latlong_p) <- "+proj=longlat +datum=WGS84 +no_defs"
 sabah_bb_UTM <- extent(440338.32, 869413.14, 294954.50, 787611.81)
 sabah_UTM <- CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+# OR epsg = 32650
 
 #  Generate base map of Sabah polygons
 border_my <- shapefile("C:/Users/Sara/Desktop/SEARRP/spat_dat/country_borders/MYS_adm2.shp")
@@ -25,7 +29,7 @@ border_my$NAME_1 <- as.factor(border_my$NAME_1)
 border_sabah <- border_my[border_my@data$NAME_1 == "Sabah",]
 border_sabah_t <- spTransform(border_sabah, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 border_sabah_d <-  unionSpatialPolygons(border_sabah_t, border_sabah_t$ID_0)
-
+border_sabah_d_sf <-  st_as_sf(border_sabah_d)
 
 #  Development layers
 
@@ -91,32 +95,34 @@ amphs_t <- spTransform(amphs_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=
 amphs_c <- crop(amphs_t, border_sabah_d)
 
 #  Birds from BirdLife (Birds of the World)
-fgdb <- "C:/Users/Sara/Desktop/SEARRP/spat_dat/BOTW.gdb"
-rl_birds <- readOGR(dsn = fgdb, layer = "All_Species" )
-
-
-# List all feature classes in a file geodatabase
-subset(ogrDrivers(), grepl("GDB", name))
-fc_list <- ogrListLayers(fgdb)
-print(fc_list)
-
+rl_birds <- st_read(dsn="C:/Users/saraw/Documents/SEARRP/raw_spat_dat/BOTW.gdb", layer = "All_Species") 
+#  Join spatial data set (which contains birds from all countries) to data frame of MY species (
+#   all taxa, all spp other than least concern) only, to obtain a data frame of bird species that only occur in MY 
+#   Must do this first step because the spatial object is SO large.
+birds_j <- rl_birds %>%
+	inner_join(my_species_rl, by = c("SCINAME" = "result.scientific_name"))
+birds_c_tmp <- st_intersection(birds_j, sabah_bb_latlong_sf)
+birds_t <- st_transform(birds_c_tmp, crs = 32650)
+birds_c <- st_intersection(birds_t, border_sabah_d_sf)
+birds_sp <-as(birds_c, "Spatial")
 
 
 
 
 
 #  Save these files to work with later
-*
-save(hydro_vec_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/hydro_vec_c.Rdata")
-save(log_rds_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/log_rds_c.Rdata")
-save(for_cov_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/for_cov_c.Rdata")
-save(border_sabah_d, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/border_sabah_d.Rdata")
 
-save(mammals_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/mammals_c.Rdata")
-save(amphs_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/amphs_c.Rdata")
-writeOGR(mammals_c,"C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat", "mammals_c", driver="ESRI Shapefile")
-writeOGR(amphs_c,"C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat", "amphs_c", driver="ESRI Shapefile")
+save(hydro_vec_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
+save(log_rds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
+save(for_cov_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
+save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
 
+save(mammals_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
+save(amphs_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
+save(birds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/birds_c.Rdata")
+writeOGR(mammals_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "mammals_c", driver="ESRI Shapefile")
+writeOGR(amphs_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "amphs_c", driver="ESRI Shapefile")
+writeOGR(birds_sp,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "birds_sp", driver="ESRI Shapefile")
 
 
 

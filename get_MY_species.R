@@ -9,4 +9,4 @@ Sys.setenv(IUCN_REDLIST_KEY = "7b70de11d3fda3bb7ad7aa8714d04ac808198cf34fe37a912
 
 #  Generate data frame of all species found in Malaysia
 my_species <- as.data.frame(rl_sp_country("MY")) %>%
-	filter(result.category != "LC")
+my_species_rl <- filter(my_species, result.category != "LC")

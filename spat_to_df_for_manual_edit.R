@@ -12,8 +12,8 @@ library(sf)
 library(ggplot2)
 
 #  Load species distirbution data using 'sf' package
-load(file="C:/Users/Sara/Desktop/SEARRP/raw_spat_dat/trans_crop_dat/mammals_c.Rdata")
-load(file="C:/Users/Sara/Desktop/SEARRP/raw_spat_dat/trans_crop_dat/amphs_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_dat/trans_crop_proj/mammals_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_dat/trans_crop_proj/amphs_c.Rdata")
 
 #  Convert shapefiles to sf_object (simple feature) for easy use with dplyr, ggplot, etc.
 #  	Filter only species that are threatened (other than Least concern) 
@@ -35,8 +35,8 @@ sf_amphs_threat <- st_as_sf(amphs_c) %>%
 	####   and thus does not have any part that falls within the elevational constraints. Must leave this spp out 
 	####   for the loop to work. 
 
-#saveRDS(sf_mammals_threat, file="C:/Users/Sara/Desktop/SEARRP/processed_spat_data/sf_mammals_threat.rds")
-#saveRDS(sf_amphs_threat, file="C:/Users/Sara/Desktop/SEARRP/processed_spat_data/sf_amphs_threat.rds")
+#saveRDS(sf_mammals_threat, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_mammals_threat.rds")
+#saveRDS(sf_amphs_threat, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_amphs_threat.rds")
 
 #  Write to csv to manually go through with IUCN data and collect info on 
 #   elevational constraints, tolerance to distrubed habitat, water and forest dependency 
