@@ -3,7 +3,7 @@
 #  Function to adjust species distribution polygons with information on
 #   constraints such as elevation and forest and water dependency.
 
-adj_spp_poly_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_spp_sf = NULL){
+adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_spp_sf = NULL){
 												 
 	# dat: file path to edited non-spatial data from manual input of constraint information from IUCN pages to species
 	# sf: file path to simple feature object of species spatial data
