@@ -14,7 +14,7 @@ adj_spp_poly_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_spp_s
 	df_spp_threat <- read.csv(dat)
 	#  Read in simple feature object with spatial data and arrange to match order of non-spatial data
 	sf_spp_threat <- readRDS(sf) %>%
-		dplyr::select(binomial, id_no, geometry, shape_Leng) %>%
+		dplyr::select(binomial, id_no, geometry, shape_Leng) %>% 
 		arrange(binomial, shape_Leng)
 	sf_spp_threat$binomial <- as.factor(sf_spp_threat$binomial)
 
@@ -26,14 +26,14 @@ adj_spp_poly_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_spp_s
 	new_range_list <- list()
 	for(i in 1:nrow(spp_df_sf_join)){	
 		sf_tmp <- spp_df_sf_join %>%	
-			filter(row_number() == i)
+			dplyr::filter(row_number() == i)
 		sp_tmp <-as(sf_tmp, "Spatial")
 		elev_tmp <- raster::mask(elev_250m_c, sp_tmp)
 		elev_tmp_rc <- raster::reclassify(elev_tmp, c(-Inf, sf_tmp$elev_min,0, sf_tmp$elev_min,sf_tmp$elev_max,1, sf_tmp$elev_max,Inf,0))
 		new_range_sp_tmp <- polygonizer(elev_tmp_rc) 
 		new_range_sf_tmp <- st_as_sf(new_range_sp_tmp)
 		new_range_sf <- new_range_sf_tmp %>%
-									filter(DN == 1) 
+									dplyr::filter(DN == 1) 
 		new_range_sf_u <- st_union(new_range_sf)
 		new_range_sp <-as(new_range_sf_u, "Spatial")
 		new_range_sp@polygons[[1]]@ID <-  paste0("ID", i)

@@ -103,8 +103,8 @@ birds_j <- rl_birds %>%
 	inner_join(my_species_rl, by = c("SCINAME" = "result.scientific_name"))
 birds_c_tmp <- st_intersection(birds_j, sabah_bb_latlong_sf)
 birds_t <- st_transform(birds_c_tmp, crs = 32650)
-birds_c <- st_intersection(birds_t, border_sabah_d_sf)
-birds_sp <-as(birds_c, "Spatial")
+birds_c_tmp <- st_intersection(birds_t, border_sabah_d_sf)
+birds_c <-as(birds_c_tmp, "Spatial")
 
 
 
@@ -122,7 +122,7 @@ save(amphs_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_cr
 save(birds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/birds_c.Rdata")
 writeOGR(mammals_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "mammals_c", driver="ESRI Shapefile")
 writeOGR(amphs_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "amphs_c", driver="ESRI Shapefile")
-writeOGR(birds_sp,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "birds_sp", driver="ESRI Shapefile")
+writeOGR(birds_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "birds_sp", driver="ESRI Shapefile")
 
 
 

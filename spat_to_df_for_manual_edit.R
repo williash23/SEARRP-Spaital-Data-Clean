@@ -9,12 +9,12 @@ library(raster)
 library(tidyverse) 
 library(stringr)
 library(sf)
-library(ggplot2)
+
 
 #  Load species distirbution data using 'sf' package
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_dat/trans_crop_proj/mammals_c.Rdata")
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_dat/trans_crop_proj/amphs_c.Rdata")
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_dat/trans_crop_proj/birds_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
+load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/birds_c.Rdata")
 
 #  Convert shapefiles to sf_object (simple feature) for easy use with dplyr, ggplot, etc.
 #  	Filter only species that are threatened (other than Least concern) 
@@ -41,9 +41,10 @@ sf_mammals_threat <- st_as_sf(mammals_c) %>%
 
 iucn_dat <- read.csv("C:/Users/saraw/Documents/SEARRP/raw_excel_data/iucn_all.csv")	%>%
 	select(binomial, class, order, family)
-sf_birds_threat_tmp <- birds_c %>%
+sf_birds_threat_tmp <- st_as_sf(birds_c) %>%
 	select(id_no = SISID, binomial = SCINAME, subspecies = result.subspecies, subpop = result.subpopulation,
-			   RL_assess_year = DATE_, RL_code = result.category, shape_Leng = Shape_Length, shape_Area = Shape_Area) 
+			   RL_assess_year = DATE_, RL_code = result.category, shape_Leng = Shape_Length, 
+			   shape_Area = Shape_Area) 
 sf_birds_threat <- sf_birds_threat_tmp %>%
 	left_join(iucn_dat, by = "binomial")
 	
@@ -72,9 +73,11 @@ st_geometry(df_birds_threat) <- NULL
 #write.csv(df_birds_threat, file = "sabah_birds_threatened_tmp.csv")	
 #  Manually edited csv file will drop _tpm in file name
 
-#### NOTE: if no constraint information is given from IUCN on elevation, range is input manually
-####  as 0-4095m, or 0 as minimum for elevation ranges "up to XXm", or 4095m 
-####  as maximum for emlevation ranges "above XXm"
+####  NOTE: if no constraint information is given from IUCN on elevation, range is input manually
+####   as 0-4095m, or 0 as minimum for elevation ranges "up to XXm", or 4095m 
+####   as maximum for emlevation ranges "above XXm"
+####  If there were descrepancies on elevation constraints within the IUCN species accounts,
+####   I used the more "lenient" values (i.e., the smaller lower limit and larger upper limit).
 
 
 

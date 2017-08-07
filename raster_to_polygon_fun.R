@@ -1,9 +1,10 @@
 # Function sourced from:
-#  https://johnbaumgartner.wordpress.com/2012/07/26/getting-rasters-into-shape-from-r/#comment-185
-#  and
 #  https://gist.github.com/johnbaums/26e8091f082f2b3dd279
+# Must install both Python and GDAL: follow directions from install from:
+#  https://sandbox.idre.ucla.edu/sandbox/tutorials/installing-gdal-for-windows
 
-polygonizer <- function(x, outshape=NULL, pypath=NULL,  readpoly=TRUE, 
+
+polygonizer <- function(x, outshape=NULL, pypath=NULL, readpoly=TRUE, 
                         fillholes=FALSE, aggregate=FALSE, 
                         quietish=TRUE) {
   # x: an R Raster layer, or the file path to a raster file recognised by GDAL 
@@ -72,3 +73,4 @@ polygonizer <- function(x, outshape=NULL, pypath=NULL,  readpoly=TRUE,
   }
   ifelse(isTRUE(readpoly), return(shp), return(NULL))
 }
+
