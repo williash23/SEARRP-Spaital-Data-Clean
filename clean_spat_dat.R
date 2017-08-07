@@ -39,7 +39,7 @@ log_rds <- shapefile("C:/Users/Sara/Desktop/SEARRP/spat_dat/roads/REGIONBorneo_L
 log_rds_t <- spTransform(log_rds, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 log_rds_c <- crop(log_rds_t, border_sabah_d)
 
-### Issues with data files below
+### PA file does not currently work
 #  Protected area and other land ownership data from M. Strimas via email or Gaveau et al. 2014, accessed at:
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
 #  This (obtained from M. Stimas) appears to be a plantation land ownership shapefile, not protected areas
@@ -60,6 +60,7 @@ orig_land_cov_t <- spTransform(orig_land_cov_b, CRS("+proj=utm +zone=50 +datum=W
 orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
 
 
+
 #  Environmental layers
 
 #  Forest cover data from Gaveau et al. 2016, accessed at: 
@@ -71,12 +72,15 @@ for_cov_c <- crop(for_cov,border_sabah_d)
 hydro_vec <- shapefile("C:/Users/Sara/Desktop/SEARRP/spat_dat/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
 hydro_vec_t <- spTransform(hydro_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
+hydro_vec_b <- st_as_sf(hydro_vec_c) %>%
+	st_buffer(dist = 1000)
 
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
 elev_250m <- raster("C:/Users/Sara/Desktop/SEARRP/spat_dat/dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif")
 elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 elev_250m_c <- crop(elev_250m_t, border_sabah_d)
+
 
 
 #  Species distribution layers

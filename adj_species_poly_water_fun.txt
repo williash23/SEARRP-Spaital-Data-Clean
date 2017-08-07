@@ -1,7 +1,7 @@
 #  Sara Williams
-#  July 19, 2017
+#  August 7, 2017
 #  Function to adjust species distribution polygons with information on
-#   elevational constraints.
+#   water dependency constraint.
 
 adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, new_spp_sf = NULL){
 												 
