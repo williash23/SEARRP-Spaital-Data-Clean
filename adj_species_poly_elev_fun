@@ -49,12 +49,12 @@ adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_
 
 	#  Write to shapefile for later use
 	st_write(new_spp_ranges_sf, 
-		dsn = paste("C:/Users/Sara/Desktop/SEARRP/processed_spat_data/new_ranges", new_spp_sp, sep="/"), 
+		dsn = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data/new_ranges", new_spp_sp, sep="/"), 
 		layer = new_spp_sp, 
 		driver = "ESRI Shapefile")
 
 	#  Combine new spatial ranges with information from data frame
 	new_spp_ranges_w_dat <- st_join(new_spp_ranges_sf, spp_df_sf_join)
 	save(new_spp_ranges_w_dat, 
-		file = paste("C:/Users/Sara/Desktop/SEARRP/processed_spat_data", new_spp_sf, sep = "/"))
+		file = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data", new_spp_sf, sep = "/"))
 	}
