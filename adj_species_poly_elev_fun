@@ -3,7 +3,7 @@
 #  Function to adjust species distribution polygons with information on
 #   constraints such as elevation and forest and water dependency.
 
-adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_spp_sf = NULL){
+adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, new_spp_sf = NULL){
 												 
 	# dat: file path to edited non-spatial data from manual input of constraint information from IUCN pages to species
 	# sf: file path to simple feature object of species spatial data
@@ -49,12 +49,14 @@ adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL, new_
 
 	#  Write to shapefile for later use
 	st_write(new_spp_ranges_sf, 
-		dsn = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data/new_ranges", new_spp_sp, sep="/"), 
+		dsn = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data/new_elev_ranges", new_spp_sp, sep="/"), 
 		layer = new_spp_sp, 
 		driver = "ESRI Shapefile")
+}
 
-	#  Combine new spatial ranges with information from data frame
-	new_spp_ranges_w_dat <- st_join(new_spp_ranges_sf, spp_df_sf_join)
-	save(new_spp_ranges_w_dat, 
-		file = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data", new_spp_sf, sep = "/"))
-	}
+
+#	#  Combine new spatial ranges with information from data frame
+#	new_spp_ranges_w_dat <- st_join(new_spp_ranges_sf, spp_df_sf_join)
+#	save(new_spp_ranges_w_dat, 
+#		file = paste("C:/Users/saraw/Documents/SEARRP/processed_spat_data", new_spp_sf, sep = "/"))
+#	}
