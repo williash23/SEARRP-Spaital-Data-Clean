@@ -75,6 +75,7 @@ hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
 hydro_vec_b <- st_as_sf(hydro_vec_c) %>%
 	st_buffer(dist = 1000)
 
+
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
 elev_250m <- raster("C:/Users/Sara/Desktop/SEARRP/spat_dat/dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif")
