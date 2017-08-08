@@ -3,7 +3,13 @@
 #  Function to adjust species distribution polygons with information on
 #   water dependency constraint.
 
-adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, new_spp_sf = NULL){
+####  Currently, I generate a static buffer around the water features to be used for all spp (1000m).
+####   However, buffer size could be nested within this function and vary based on conditions of
+####   other variables. I.e., for river dependent kingfishers, condition could be if(family  == "Coraciiformes"), 
+####   hydro_vec_b <- st_as_sf(hydro_vec_c) %>%
+####   		st_buffer(dist = 1000)
+
+adj_spp_poly_water_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, new_spp_sf = NULL){
 												 
 	# dat: file path to edited non-spatial data from manual input of constraint information from IUCN pages to species
 	# sf: file path to simple feature object of species spatial data
@@ -27,15 +33,15 @@ adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, 
 	for(i in 1:nrow(spp_df_sf_join)){	
 		sf_tmp <- spp_df_sf_join %>%	
 			dplyr::filter(row_number() == i)
-		sp_tmp <-as(sf_tmp, "Spatial")
-		elev_tmp <- raster::mask(elev_250m_c, sp_tmp)
-		elev_tmp_rc <- raster::reclassify(elev_tmp, c(-Inf, sf_tmp$elev_min,0, sf_tmp$elev_min,sf_tmp$elev_max,1, sf_tmp$elev_max,Inf,0))
-		new_range_sp_tmp <- polygonizer(elev_tmp_rc) 
-		new_range_sf_tmp <- st_as_sf(new_range_sp_tmp)
-		new_range_sf <- new_range_sf_tmp %>%
-									dplyr::filter(DN == 1) 
+		sp_tmp <- as(sf_tmp, "Spatial")
+		if(sf_tmp$water_dep == 1) {
+			  new_range_sp_tmp <- crop(sp_tmp, hydro_vec_b_sp)
+			} else {
+			  new_range_sp_tmp <- sp_tmp
+			}
+		new_range_sf <- st_as_sf(new_range_sp_tmp)
 		new_range_sf_u <- st_union(new_range_sf)
-		new_range_sp <-as(new_range_sf_u, "Spatial")
+		new_range_sp <- as(new_range_sf_u, "Spatial")
 		new_range_sp@polygons[[1]]@ID <-  paste0("ID", i)
 		id <- paste0("poly_", i)
 		new_range_list[[id]] <- new_range_sp
