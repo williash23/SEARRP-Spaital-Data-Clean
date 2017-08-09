@@ -1,7 +1,7 @@
 #  Sara Williams
-#  June 13, 2017; July 15, 2017
+#  June 13, 2017; July 15, 2017; August 9, 2017
 #  Script to run function to adjust species distribution polygons with 
-#  information on constraints such as elevation and forest and water dependency.
+#  information on constraints such as elevation, forest, and water dependency.
 
 library(maptools)
 library(rgdal)
@@ -27,7 +27,8 @@ source("C:/Users/saraw/Documents/SEARRP/scripts/adj_species_poly_water_fun.R")
 
 
 #  Run function to adjust spp ranges based on elevational constraints
-adj_spp_poly_elev_fun(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_mammals_threatened.csv",
+adj_spp_poly_elev_fun(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_mammals_threatened.csv",
 	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_mammals_threat.rds",
 	new_spp_sp = "mammals_elev.shp") #, 
 	#new_spp_sf = "new_mammal_elev_w_dat.rds")
@@ -35,7 +36,8 @@ adj_spp_poly_elev_fun(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_dat
 ####   Must leave this spp out for the loop to work. It has been removed from
 ####   the larger data files but saved on it's own CSV file.							
 
-adj_spp_poly_elev_fund(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_amphibians_threatened.csv",
+adj_spp_poly_elev_fund(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_amphibians_threatened.csv",
 	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_amphs_threat.rds",
 	new_spp_sp = "amphibians_elev.shp") #, 
 	#new_spp_sf = "new_amphibian_elev_w_dat.rds")
@@ -44,7 +46,8 @@ adj_spp_poly_elev_fund(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_da
 ####   and thus does not have any part that falls within the elevational constraints. Must leave this spp out 
 ####   for the loop to work. It has been removed from the larger data files but saved on it's own CSV file.		
 
-adj_spp_poly_elev_fun(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_birds_threatened.csv",
+adj_spp_poly_elev_fun(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_birds_threatened.csv",
 	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_birds_threat.rds",
 	new_spp_sp = "birds_elev.shp") #, 
 	#new_spp_sf = "new_bird_elev_w_dat.rds")
@@ -52,13 +55,15 @@ adj_spp_poly_elev_fun(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_dat
 
 
 #  Run function to adjust spp ranges based on water dependency constraints.
-#   First, create buffer of desired size around all water (rivers and coastline)
+#   First, create buffer of desired size around all water (rivers and coastline) - currently 1000m
 rivers <- st_as_sf(hydro_vec_c)
 rivers_b <- st_buffer(rivers, 1000)
 coast_b <- st_buffer(coast_str, 990) # coast line already includes a 10m buffer from coast line creation
 all_water <- st_union(rivers_b, coast_b)
+all_water_sp <- as(all_water, "Spatial")
 
-adj_spp_poly_water_fun(dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_mammals_threatened_elev_water.csv",
+adj_spp_poly_water_fun(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_mammals_threatened.csv",
 	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_mammals_threat.rds",
 	new_spp_sp = "mammals_water.shp") #, 
 	#new_spp_sf = "new_mammal_water_w_dat.rds")
