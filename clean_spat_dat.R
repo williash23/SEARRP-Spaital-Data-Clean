@@ -29,7 +29,7 @@ border_my$NAME_1 <- as.factor(border_my$NAME_1)
 border_sabah <- border_my[border_my@data$NAME_1 == "Sabah",]
 border_sabah_t <- spTransform(border_sabah, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 border_sabah_d <- unionSpatialPolygons(border_sabah_t, border_sabah_t$ID_0)
-border_sabah_d_sf <-  st_as_sf(border_sabah_d)
+border_sabah_sf <-  st_as_sf(border_sabah_d)
 
 #  Development layers
 
@@ -66,7 +66,7 @@ orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
 #  Forest cover data from Gaveau et al. 2016, accessed at: 
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
 for_cov <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif")
-for_cov_c <- crop(for_cov,border_sabah_d)
+for_cov_c <- crop(for_cov, border_sabah_d)
 
 #  HydroSHEDS river and basin data, accessed at: http://hydrosheds.org/page/overview
 hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
@@ -79,34 +79,22 @@ elev_250m <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/dem/GMTED2010
 elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 elev_250m_c <- crop(elev_250m_t, border_sabah_d)
 
-
-#   Generate buffer around sabah coastline and water features
-#   Buffer around coastline
-border_sabah_b <- buffer(border_sabah_d, -2000)
-#   Remove inside and leave polygon only as strip of buffer near coastline
-coast_str <- raster::erase(border_sabah_d, border_sabah_b)
-#   Buffer around water features
-hydro_vec_b <- st_as_sf(hydro_vec_c) %>%
-	st_buffer(dist = 2000)	
-hydro_vec_b_sp <- as(hydro_vec_b, "Spatial")
-#   Combine coastal strip and water features
-water_b <- raster::union(coast_str, hydro_vec_b_sp)
-water_d <- raster::aggregate(water_b)
-
-#   Get ocean area to select only sabah border that is coastline
-ocean <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/ocean/ne_10m_ocean.shp")
-ocean_c_tmp <- crop(ocean, sabah_bb_latlong)
-ocean_t <- spTransform(ocean_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-ocean_c <- crop(ocean_t, border_sabah_d)
-ocean_d <- aggregate(ocean_c)
-
-coast_sf <- st_as_sf(coast_str)
-coast_bb_latlong <- extent(115.426438, 117.587149, 4.177596, 4.968712)
-coast_bb_latlong <- extent(115.426438, 117.587149, 7.177596, 7.968712)
-coast_bb_latlong_p <- as(coast_bb_latlong, 'SpatialPolygons')
-
-
-
+#   Sabah coastline
+#   Create box where Sabah border is not on coastline
+y <- c(4.968642, 4.166413, 3.317313, 4.337937, 4.968642)
+x <- c(115.425960, 117.898442, 117.811867, 114.821043, 115.425960)
+coast_border_latlong <- SpatialLines(list(Lines(Line(cbind(x,y)), ID="a")))
+crs(coast_border_latlong) <- "+proj=longlat +datum=WGS84 +no_defs"
+coast_border <- spTransform(coast_border_latlong, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+coast_border_sf <- st_as_sf(coast_border)
+coast_border_p_sf <- st_polygonize(coast_border_sf)
+#   Determine the difference between the entire Sabah border and border without coastline
+coast_diff <- st_difference(border_sabah_sf, coast_border_p_sf)
+#   Create a strip of land that is the coastline ONLY
+border_sabah_l <- as(border_sabah_d, 'SpatialLines')
+border_sabah_b <- buffer(border_sabah_l, 10)
+border_sabah_sf_b <- st_as_sf(border_sabah_b)
+coast_str <- st_intersection(border_sabah_sf_b, coast_diff)
 
 
 
@@ -139,12 +127,10 @@ birds_c <-as(birds_c_tmp, "Spatial")
 
 
 
-
-
 #  Save these files to work with later
 
 save(hydro_vec_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
-save(hydro_vec_b, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_b.Rdata")
+save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/coast_str.Rdata")
 save(log_rds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
 save(for_cov_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
 save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
@@ -155,6 +141,9 @@ save(birds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_cr
 writeOGR(mammals_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "mammals_c", driver="ESRI Shapefile")
 writeOGR(amphs_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "amphs_c", driver="ESRI Shapefile")
 writeOGR(birds_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "birds_sp", driver="ESRI Shapefile")
+
+
+
 
 
 
@@ -170,3 +159,9 @@ writeOGR(birds_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop
 # hydro_dem_t <- projectRaster(hydro_dem, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 # hydro_dem_c <- crop(hydro_dem_t, border_sabah_d)
 # save(hydro_dem_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/hydro_dem_c .Rdata")
+
+#  Surrounding ocean polygon
+ocean <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/ocean/ne_10m_ocean.shp")
+ocean_c_tmp <- crop(ocean, sabah_bb_latlong)
+ocean_t <- spTransform(ocean_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+ocean_sf <- st_as_sf(ocean_t)
