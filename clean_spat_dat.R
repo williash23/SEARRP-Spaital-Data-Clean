@@ -12,6 +12,7 @@ library(sf)
 ## install issue use: install.packages('xxxx', repos = 'http://cran.cnr.berkeley.edu/')
 
 
+
 #  General map and extent layers
 
 #  Basic information on the bounding box of Sabah (could be used for cropping) and the CRS that can be used 
@@ -30,6 +31,8 @@ border_sabah <- border_my[border_my@data$NAME_1 == "Sabah",]
 border_sabah_t <- spTransform(border_sabah, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 border_sabah_d <- unionSpatialPolygons(border_sabah_t, border_sabah_t$ID_0)
 border_sabah_sf <-  st_as_sf(border_sabah_d)
+
+
 
 #  Development layers
 
@@ -80,7 +83,7 @@ elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +
 elev_250m_c <- crop(elev_250m_t, border_sabah_d)
 
 #   Sabah coastline
-#   Create box where Sabah border is not on coastline
+#   Create box of area of Sabah where border is not coastline
 y <- c(4.968642, 4.166413, 3.317313, 4.337937, 4.968642)
 x <- c(115.425960, 117.898442, 117.811867, 114.821043, 115.425960)
 coast_border_latlong <- SpatialLines(list(Lines(Line(cbind(x,y)), ID="a")))
