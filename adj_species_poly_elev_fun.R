@@ -10,13 +10,23 @@ adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, 
 	# new_spp_sp: shapefile name to save new ranges to (e.g., mammals, amphibians, birds, etc)
 	# new_spp_sf: simple feature object name to save new ranges to 
 	
-	#  Read in non-spatial, manually edited data
-	df_spp_threat <- read.csv(dat)
-	#  Read in simple feature object with spatial data and arrange to match order of non-spatial data
+	#  Read in non-spatial, manually edited data and select only one record per spp
+	#   Some spp have multiple polygons of ranges but all records for a sinple spp
+	#   contain the same info in the csv.
+	df_spp_threat <- read.csv(dat) %>%
+		group_by(binomial) %>%
+		slice(1) %>%
+		as.data.frame()
+		
+	#  Read in simple feature object with spatial data, dissolve all polygons belonging to same spp, and 
+	#   arrange to match order of non-spatial data
 	sf_spp_threat <- readRDS(sf) %>%
 		dplyr::select(binomial, id_no, geometry, shape_Leng) %>% 
 		arrange(binomial, shape_Leng)
 	sf_spp_threat$binomial <- as.factor(sf_spp_threat$binomial)
+	sp_spp_threat <- as(sf_spp_threat, "Spatial")
+	sp_spp_threat_a <- aggregate(sp_spp_threat, by = "binomial")
+	sf_spp_threat_a <- st_as_sf(sp_spp_threat_a)
 
 	#  Join to original spatial data object to reapply polygon/geometry/spatial info
 	spp_df_sf_join <- bind_cols(sf_spp_threat, df_spp_threat) 
