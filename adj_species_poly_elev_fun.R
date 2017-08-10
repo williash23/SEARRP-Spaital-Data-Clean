@@ -29,7 +29,7 @@ adj_spp_poly_elev_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, 
 	sf_spp_threat_a <- st_as_sf(sp_spp_threat_a)
 
 	#  Join to original spatial data object to reapply polygon/geometry/spatial info
-	spp_df_sf_join <- bind_cols(sf_spp_threat, df_spp_threat) 
+	spp_df_sf_join <- bind_cols(sf_spp_threat_a, df_spp_threat) 
 
 	#  Loop over all species distributions and remove pixels that are outside of elevational 
 	#   constraint
