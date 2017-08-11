@@ -61,14 +61,21 @@ rivers_b <- st_buffer(rivers, 1000)
 coast_b <- st_buffer(coast_str, 990) # coast line already includes a 10m buffer from coast line creation
 all_water <- st_union(rivers_b, coast_b)
 all_water_sp <- as(all_water, "Spatial")
+rivers_sp <- as(rivers_b, "Spatial")
 
 adj_spp_poly_water_fun(
 	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_mammals_threatened.csv",
 	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_mammals_threat.rds",
-	new_spp_sp = "mammals_water.shp") #, 
+	new_spp_sp = "mammals_water.shp",
+	water_feature = all_water_sp) #, 
 	#new_spp_sf = "new_mammal_water_w_dat.rds")
 
-
+adj_spp_poly_water_fun(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_amphibians_threatened.csv",
+	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_amphs_threat.rds",
+	new_spp_sp = "amphibians_water.shp",
+	water_feature = rivers_sp) #, 
+	#new_spp_sf = "new_amphibian_water_w_dat.rds")
 
 
 

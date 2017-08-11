@@ -12,7 +12,11 @@
 ####   hydro_vec_b <- st_as_sf(hydro_vec_c) %>%
 ####       st_buffer(dist = 1000)
 
-adj_spp_poly_water_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #, new_spp_sf = NULL){
+adj_spp_poly_water_fun <- function(dat = NULL, 
+	sf = NULL, 
+	new_spp_sp = NULL,
+	water_feature = NULL){ 
+	#, new_spp_sf = NULL){
 												 
 	# dat: file path to edited non-spatial data from manual input of constraint information from IUCN pages to species
 	# sf: file path to simple feature object of species spatial data
@@ -48,7 +52,7 @@ adj_spp_poly_water_fun <- function(dat = NULL, sf = NULL, new_spp_sp = NULL){ #,
 			dplyr::filter(row_number() == i)
 		sp_tmp <- as(sf_tmp, "Spatial")
 		if(sf_tmp$water_dep == 1) {
-			  new_range_sp_tmp <- crop(sp_tmp, all_water_sp)
+			  new_range_sp_tmp <- crop(sp_tmp, water_feature)
 			} else {
 			  new_range_sp_tmp <- sp_tmp
 			}
