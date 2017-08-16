@@ -19,6 +19,7 @@ library(sf)
 #   to link spatial data layers.
 sabah_bb_latlong <- extent(115.1531, 119.6081, 3.981738, 7.857259)
 sabah_bb_latlong_p <- as(sabah_bb_latlong, 'SpatialPolygons')
+sabah_bb_latlong_sf <- st_as_sf(sabah_bb_latlong_p)
 crs(sabah_bb_latlong_p) <- "+proj=longlat +datum=WGS84 +no_defs"
 sabah_bb_UTM <- extent(440338.32, 869413.14, 294954.50, 787611.81)
 sabah_UTM <- CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
@@ -32,6 +33,11 @@ border_sabah_t <- spTransform(border_sabah, CRS("+proj=utm +zone=50 +datum=WGS84
 border_sabah_d <- unionSpatialPolygons(border_sabah_t, border_sabah_t$ID_0)
 border_sabah_sf <-  st_as_sf(border_sabah_d)
 
+#  Generate base map of Sarawak (for mapping)
+border_sarawak <- border_my[border_my@data$NAME_1 == "Sarawak",]
+border_sarawak_t <- spTransform(border_sarawak, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+border_sarawak_d <- unionSpatialPolygons(border_sarawak_t, border_sarawak_t$ID_0)
+border_sarawak_sf <-  st_as_sf(border_sarawak_d)
 
 
 #  Development layers
@@ -75,6 +81,11 @@ for_cov_c <- crop(for_cov, border_sabah_d)
 hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
 hydro_vec_t <- spTransform(hydro_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
+
+hybas <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hybas_lake_as_lev12_v1c/hybas_lake_as_lev12_v1c.shp")
+hybas_t <- spTransform(hybas, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+hybas_c <- crop(hybas_t, border_sabah_d)
+
 
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
@@ -157,14 +168,19 @@ writeOGR(birds_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop
 # elev_1k_t <- projectRaster(elev_1k, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 # elev_1k_c <- crop(elev_1k_t, border_sabah_d)
 
-#  Hydro1k elevation data 
-# hydro_dem <- raster("C:/Users/sara.williams/Desktop/SEARRP/spat_dat/hydro/as_dem.bil")
-# hydro_dem_t <- projectRaster(hydro_dem, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
-# hydro_dem_c <- crop(hydro_dem_t, border_sabah_d)
-# save(hydro_dem_c, file="C:/Users/Sara/Desktop/SEARRP/spat_dat/trans_crop_dat/hydro_dem_c .Rdata")
+# #  Hydro1k elevation data: This is fewer rivers and streams than represented by hydroSHEDS
+# #   Convert the e00 to SpatialLines
+# e00 <- ("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydro1k/au_str.e00")
+# e00toavc(e00, "au_str")
+# arc <- get.arcdata(".", "au_str")
+# hydro1k <- st_as_sf(ArcObj2SLDF(arc))
+# st_crs(hydro1k) = "+proj=laea +lat_0=-15 +lon_0=135 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs "
+# hydro1k_t_tmp <- st_transform(hydro1k, "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+# hydro1k_t_tmp_sp <- as(hydro1k_t_tmp, "Spatial")
+# hydro1k_c_tmp <- crop(hydro1k_t_tmp_sp, border_sabah_d)
 
-#  Surrounding ocean polygon
-ocean <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/ocean/ne_10m_ocean.shp")
-ocean_c_tmp <- crop(ocean, sabah_bb_latlong)
-ocean_t <- spTransform(ocean_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-ocean_sf <- st_as_sf(ocean_t)
+# #  Surrounding ocean polygon
+# ocean <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/ocean/ne_10m_ocean.shp")
+# ocean_c_tmp <- crop(ocean, sabah_bb_latlong)
+# ocean_t <- spTransform(ocean_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+# ocean_sf <- st_as_sf(ocean_t)
