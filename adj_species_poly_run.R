@@ -76,11 +76,21 @@ adj_spp_poly_water_fun(
 	new_spp_sp = "amphibians_water.shp",
 	water_feature = rivers_sp) #, 
 	#new_spp_sf = "new_amphibian_water_w_dat.rds")
+####  NOTE: the shapefile from the IUCN spatial data for Staurois parvus show that it covers 
+####   only two very small areas. Until finding a hydrological spatial data set with finer detial, 
+####   must designate this spp as not water dependent ("0") for the loop to work. 
+
+adj_spp_poly_water_fun(
+	dat = "C:/Users/saraw/Documents/SEARRP/processed_excel_data/sabah_birds_threatened.csv",
+	sf = "C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_birds_threat.rds",
+	new_spp_sp = "birds_water.shp",
+	water_feature = all_water_sp) #, 
+	#new_spp_sf = "new_bird_water_w_dat.rds")
 
 
 
-
-
+amphs_new <- shapefile("C:/Users/saraw/Documents/SEARRP/processed_spat_data/new_ranges/amphibians_water.shp")
+amphs_new_sf <- st_as_sf(amphs_new)
 #  Plot
 ggplot(new_mam_ranges_dat_sf) +
   geom_sf(aes(fill = RL_code)) +
