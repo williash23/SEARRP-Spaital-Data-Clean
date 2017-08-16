@@ -148,6 +148,7 @@ save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_
 save(log_rds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
 save(for_cov_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
 save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
+save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawk_d.Rdata")
 
 save(mammals_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
 save(amphs_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
