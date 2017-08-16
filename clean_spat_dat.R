@@ -47,6 +47,9 @@ border_sarawak_sf <-  st_as_sf(border_sarawak_d)
 log_rds <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/roads/REGIONBorneo_LoggingRoad_1970to2010_CIFOR.shp")
 log_rds_t <- spTransform(log_rds, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 log_rds_c <- crop(log_rds_t, border_sabah_d)
+log_rds_sf <- st_as_sf(log_rds_c) %>%
+	st_intersection(st_as_sf(border_sabah_d))
+
 
 ### PA file does not currently work
 #  Protected area and other land ownership data from M. Strimas via email or Gaveau et al. 2014, accessed at:
@@ -145,7 +148,7 @@ birds_c <-as(birds_c_tmp, "Spatial")
 
 save(hydro_vec_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
 save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/coast_str.Rdata")
-save(log_rds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
+save(log_rds_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_sf.Rdata")
 save(for_cov_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
 save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
 save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawk_d.Rdata")
