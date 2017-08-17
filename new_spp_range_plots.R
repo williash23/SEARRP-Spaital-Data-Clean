@@ -38,7 +38,7 @@ load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/b
 r_theme <- rasterTheme(rev(brewer.pal(8, "Spectral")))
 
 plot_mams_r <- levelplot(mams_r, par.settings = r_theme, 
-	main = "Threated mammal species ranges",
+	main = "Threated mammal species ranges \n",
 	xlab= "Longitude (UTM)",
 	ylab="Latitude (UTM)") +
 	layer(sp.polygons(border_sabah_d, lwd = 0.8, col = 'grey40')) + 
@@ -47,7 +47,7 @@ plot_mams_r <- levelplot(mams_r, par.settings = r_theme,
 plot_mams_r
 
 plot_amphs_r <- levelplot(amphs_r, par.settings = r_theme, 
-	main = "Threated amphibian species ranges",
+	main = "Threated amphibian species ranges \n",
 	xlab= "Longitude (UTM)",
 	ylab="Latitude (UTM)") +
 	layer(sp.polygons(border_sabah_d, lwd = 0.8, col = 'grey40')) + 
@@ -56,7 +56,7 @@ plot_amphs_r <- levelplot(amphs_r, par.settings = r_theme,
 plot_amphs_r
 
 plot_birds_r <- levelplot(birds_r, par.settings = r_theme, 
-	main = "Threated bird species ranges",
+	main = "Threated bird species ranges \n",
 	xlab= "Longitude (UTM)",
 	ylab="Latitude (UTM)") +
 	layer(sp.polygons(border_sabah_d, lwd = 0.8, col = 'grey40')) + 
@@ -68,36 +68,53 @@ plot_birds_r
 
 
  
-#  Plots using polygons and alpha (transparency)
-mams_p <- ggplot(mams_sf_dat) +
-  geom_sf(colour = "transparent", fill = "darkred", alpha = 0.018) +
-  #geom_sf(data = log_rds_sf, colour = "darkgrey") +
-  coord_sf(crs = st_crs(32650)) +
-  xlab("Latitude") +
-  ylab("Longitude") +
-  ggtitle("Mammals - Threatened Species Ranges") +
-  theme_bw()
-mams_p
+#  Plots using sf objects and alpha (transparency)
+#   Generate required sf objects
+sabah_sf <- st_as_sf(border_sabah_d)
+sarawak_sf <- st_as_sf(border_sarawak_d)
+kali_sf <- st_as_sf(border_kali_d)
 
-amphs_p <- ggplot(amphs_sf_dat) +
-  geom_sf(colour = "transparent", fill = "darkred", alpha = 0.018) +
-  #geom_sf(data = log_rds_sf, colour = "darkgrey") +
+plot_mams_p <- ggplot(new_mams_sf_dat) +
+  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.03) +
+  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
   coord_sf(crs = st_crs(32650)) +
   xlab("Latitude") +
   ylab("Longitude") +
-  ggtitle("Amphibians - Threatened Species Ranges") +
+  xlim(315000, 755000) +
+  ylim(455000, 815000) +
+  ggtitle("Threatened mammal species range overlap (97 species) ") +
   theme_bw()
-amphs_p
+plot_mams_p
 
-birds_p <- ggplot(birds_sf_dat) +
-  geom_sf(colour = "transparent", fill = "darkred", alpha = 0.018) +
-  #geom_sf(data = log_rds_sf, colour = "darkgrey") +
+plot_amphs_p <- ggplot(new_amphs_sf_dat) +
+  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.2) +
+  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
   coord_sf(crs = st_crs(32650)) +
   xlab("Latitude") +
   ylab("Longitude") +
-  ggtitle("Birds - Threatened Species Ranges") +
+  xlim(315000, 755000) +
+  ylim(455000, 815000) +
+  ggtitle("Threatened amphibian species range overlap (58 species)") +
   theme_bw()
-birds_p
+plot_amphs_p
+
+plot_birds_p <- ggplot(new_birds_sf_dat) +
+  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.01) +
+  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
+  coord_sf(crs = st_crs(32650)) +
+  xlab("Latitude") +
+  ylab("Longitude") +
+  xlim(315000, 755000) +
+  ylim(455000, 815000) +
+  ggtitle("Threatened bird species range overlap (120 species)") +
+  theme_bw()
+plot_birds_p
 
 
 
