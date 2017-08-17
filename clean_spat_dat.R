@@ -39,6 +39,12 @@ border_sarawak_t <- spTransform(border_sarawak, CRS("+proj=utm +zone=50 +datum=W
 border_sarawak_d <- unionSpatialPolygons(border_sarawak_t, border_sarawak_t$ID_0)
 border_sarawak_sf <-  st_as_sf(border_sarawak_d)
 
+#  Generate base map of Indonesia (for mapping)
+border_in <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/country_borders/IDN_adm2.shp")
+border_in$NAME_1 <- as.factor(border_in$NAME_1)
+border_kali <- border_in[border_in@data$NAME_1 == "Kalimantan Utara",]
+border_kali_t <- spTransform(border_kali, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+border_kali_d <- unionSpatialPolygons(border_kali_t, border_kali_t$ID_0)
 
 #  Development layers
 
@@ -49,7 +55,6 @@ log_rds_t <- spTransform(log_rds, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m 
 log_rds_c <- crop(log_rds_t, border_sabah_d)
 log_rds_sf <- st_as_sf(log_rds_c) %>%
 	st_intersection(st_as_sf(border_sabah_d))
-
 
 ### PA file does not currently work
 #  Protected area and other land ownership data from M. Strimas via email or Gaveau et al. 2014, accessed at:
@@ -151,7 +156,8 @@ save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_
 save(log_rds_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_sf.Rdata")
 save(for_cov_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.Rdata")
 save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
-save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawk_d.Rdata")
+save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawak_d.Rdata")
+save(border_kali_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_kali_d.Rdata")
 
 save(mammals_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
 save(amphs_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
