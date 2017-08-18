@@ -46,6 +46,8 @@ border_kali <- border_in[border_in@data$NAME_1 == "Kalimantan Utara",]
 border_kali_t <- spTransform(border_kali, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 border_kali_d <- unionSpatialPolygons(border_kali_t, border_kali_t$ID_0)
 
+
+
 #  Development layers
 
 #  Logging road data from Gaveau et al. 2014, accessed at:
