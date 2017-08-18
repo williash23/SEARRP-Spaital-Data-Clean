@@ -75,45 +75,45 @@ sarawak_sf <- st_as_sf(border_sarawak_d)
 kali_sf <- st_as_sf(border_kali_d)
 
 plot_mams_p <- ggplot(new_mams_sf_dat) +
-  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
-  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.03) +
-  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
-  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
-  coord_sf(crs = st_crs(32650)) +
-  xlab("Latitude") +
-  ylab("Longitude") +
-  xlim(315000, 755000) +
-  ylim(455000, 815000) +
-  ggtitle("Threatened mammal species range overlap (97 species) ") +
-  theme_bw()
+	geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+	geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.03) +
+	geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+	geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
+	coord_sf(crs = st_crs(32650)) +
+	xlab("Latitude") +
+	ylab("Longitude") +
+	xlim(315000, 755000) +
+	ylim(455000, 815000) +
+	ggtitle("Threatened mammal species range overlap (97 species) ") +
+	theme_bw()
 plot_mams_p
 
 plot_amphs_p <- ggplot(new_amphs_sf_dat) +
-  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
-  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.2) +
-  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
-  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
-  coord_sf(crs = st_crs(32650)) +
-  xlab("Latitude") +
-  ylab("Longitude") +
-  xlim(315000, 755000) +
-  ylim(455000, 815000) +
-  ggtitle("Threatened amphibian species range overlap (58 species)") +
-  theme_bw()
+	geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+	geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.2) +
+	geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+	geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
+	coord_sf(crs = st_crs(32650)) +
+	xlab("Latitude") +
+	ylab("Longitude") +
+	xlim(315000, 755000) +
+	ylim(455000, 815000) +
+	ggtitle("Threatened amphibian species range overlap (58 species)") +
+	theme_bw()
 plot_amphs_p
 
 plot_birds_p <- ggplot(new_birds_sf_dat) +
-  geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
-  geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.01) +
-  geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
-  geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
-  coord_sf(crs = st_crs(32650)) +
-  xlab("Latitude") +
-  ylab("Longitude") +
-  xlim(315000, 755000) +
-  ylim(455000, 815000) +
-  ggtitle("Threatened bird species range overlap (120 species)") +
-  theme_bw()
+	geom_sf(data = sabah_sf, colour = "grey90", fill = "grey80") +
+	geom_sf(colour = "transparent", fill = "#972D15", alpha = 0.01) +
+	geom_sf(data = sarawak_sf, colour = "grey70", fill = "grey70") +
+	geom_sf(data = kali_sf, colour = "grey70", fill = "grey70") +
+	coord_sf(crs = st_crs(32650)) +
+	xlab("Latitude") +
+	ylab("Longitude") +
+	xlim(315000, 755000) +
+	ylim(455000, 815000) +
+	ggtitle("Threatened bird species range overlap (120 species)") +
+	theme_bw()
 plot_birds_p
 
 
