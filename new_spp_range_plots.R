@@ -40,7 +40,7 @@ r_theme <- rasterTheme(rev(brewer.pal(8, "Spectral")))
 plot_mams_r <- levelplot(mams_r, par.settings = r_theme, 
 	main = "Threated mammal species ranges \n",
 	xlab= "Longitude (UTM)",
-	ylab="Latitude (UTM)") +
+	ylab="Latitude (UTM)") + # add margin = FALSE if no margins wanted
 	layer(sp.polygons(border_sabah_d, lwd = 0.8, col = 'grey40')) + 
 	layer(sp.polygons(border_sarawak_d, lwd = 0.8, col = 'grey40', fill = 'gray40')) +
 	layer(sp.polygons(border_kali_d, lwd = 0.8, col = 'grey40', fill = 'gray40')) 
