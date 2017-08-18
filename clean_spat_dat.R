@@ -85,7 +85,7 @@ orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
 #  Forest cover data from Gaveau et al. 2016, accessed at: 
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
 for_cov <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif")
-for_cov_c <- crop(for_cov, border_sabah_d)
+for_cov_c <- mask(for_cov, border_sabah_d)
 
 #  HydroSHEDS river and basin data, accessed at: http://hydrosheds.org/page/overview
 hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
