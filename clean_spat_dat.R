@@ -86,6 +86,8 @@ orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
 for_cov <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif")
 for_cov_c <- mask(for_cov, border_sabah_d)
+#   Aggregate forest cover to polygons with same raster value
+for_cov_p <- polygonizer(for_cov_c)
 
 #  HydroSHEDS river and basin data, accessed at: http://hydrosheds.org/page/overview
 hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
@@ -157,6 +159,7 @@ save(hydro_vec_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/tran
 save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/coast_str.Rdata")
 save(log_rds_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_sf.Rdata")
 writeRaster(for_cov_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.grd")
+writeOGR(for_cov_p,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "for_cov_p", driver="ESRI Shapefile")
 save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
 save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawak_d.Rdata")
 save(border_kali_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_kali_d.r")
