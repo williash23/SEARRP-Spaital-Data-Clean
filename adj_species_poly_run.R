@@ -17,7 +17,7 @@ load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/e
 load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
 load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/coast_str.Rdata")
 load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_c.Rdata")
-for <- raster("C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.grd")
+for_cov <- raster("C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.grd")
 load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
 
 #  Source raster_to_polygon function and adj_species_elev_poly function
