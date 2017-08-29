@@ -89,15 +89,10 @@ for_cov_c <- mask(for_cov, border_sabah_d)
 #   Aggregate forest cover to polygons with same raster value
 for_cov_p <- polygonizer(for_cov_c)
 
-#  HydroSHEDS river and basin data, accessed at: http://hydrosheds.org/page/overview
+#  HydroSHEDS river data, accessed at: http://hydrosheds.org/page/overview
 hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
 hydro_vec_t <- spTransform(hydro_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
-
-hybas <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hybas_lake_as_lev12_v1c/hybas_lake_as_lev12_v1c.shp")
-hybas_t <- spTransform(hybas, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-hybas_c <- crop(hybas_t, border_sabah_d)
-
 
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
