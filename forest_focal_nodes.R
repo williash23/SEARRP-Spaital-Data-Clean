@@ -28,20 +28,6 @@ for_cov <- raster("C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_cro
 # 4 		399,953,847			Non-forest
 # 5 		6,719,940				Water     
 
-#  Plot raw raster, just to take a look
-for_cov_rat <- ratify(for_cov)
-rat <- levels(for_cov_rat )[[1]]
-rat$landcover <- c('No Data', 'Intact Forest', 'Logged Forest', 'Regrowth', 'Non-forest', 'Water')
-rat$class <- c('No Data', 'Intact Forest', 'Logged Forest', 'Regrowth', 'Non-forest', 'Water')
-levels(for_cov_rat) <- rat
-
-#   All forest types different colors
-levelplot(for_cov_rat, col.regions=c("darkgreen", "yellowgreen", "grey30", "wheat3", "yellow1", "deepskyblue3"), 
-	margin = FALSE, xlim = c(300000, 750000), ylim = c(450000, 800000))
-#  Intact, logged and regrowth forest same color
-levelplot(for_cov_rat, col.regions=c("darkgreen", "darkgreen", "grey30", "wheat3", "darkgreen", "deepskyblue3"), 
-	margin = FALSE, xlim = c(300000, 750000), ylim = c(450000, 800000))
-
 	
 
 #  Convert raster to polygons based on forest cover value (0-5)
@@ -89,12 +75,6 @@ for_cov_pu <- unionSpatialPolygons(for_cov_p, ID)
 
 
 
-
-
-
-
-
-
 #####  NOTE: The following steps are a less efficient way of achieveing the same results as
 #####  Method 2 above. Documented here, but not used. 
 #  Method 2
@@ -119,6 +99,22 @@ for_cov_4 <- raster::reclassify(for_cov, rcl_4)
 
 rcl_5 <- matrix(c(0, NA, 1, NA, 2, NA, 3, NA, 4, NA), nrow = 5, ncol = 2, byrow = TRUE)
 for_cov_5 <- raster::reclassify(for_cov, rcl_5)
+
+
+
+#  Plot raw raster, just to take a look
+for_cov_rat <- ratify(for_cov)
+rat <- levels(for_cov_rat )[[1]]
+rat$landcover <- c('No Data', 'Intact Forest', 'Logged Forest', 'Regrowth', 'Non-forest', 'Water')
+rat$class <- c('No Data', 'Intact Forest', 'Logged Forest', 'Regrowth', 'Non-forest', 'Water')
+levels(for_cov_rat) <- rat
+
+#   All forest types different colors
+levelplot(for_cov_rat, col.regions=c("darkgreen", "yellowgreen", "grey30", "wheat3", "yellow1", "deepskyblue3"), 
+	margin = FALSE, xlim = c(300000, 750000), ylim = c(450000, 800000))
+#  Intact, logged and regrowth forest same color
+levelplot(for_cov_rat, col.regions=c("darkgreen", "darkgreen", "grey30", "wheat3", "darkgreen", "deepskyblue3"), 
+	margin = FALSE, xlim = c(300000, 750000), ylim = c(450000, 800000))
 
 
 
