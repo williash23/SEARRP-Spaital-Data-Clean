@@ -168,11 +168,11 @@ birds_c <- as(birds_c_tmp, "Spatial")
 
 	
 #  Plot
-plot_for <- ggplot() +
+plot_pa <- ggplot() +
 	geom_sf(data = border_sabah_sf, colour = "grey90", fill = "transparent") +
 	geom_sf(data = pa_sabah_sf, aes(fill = factor(DESIG)), colour = "transparent") +
 	scale_fill_brewer(type = "qual", palette = "Spectral",
-		labels = c("No data", "Intact forest", "Logged forest", "Regrowth", "Non-forest", "Water"),
+		labels = c("Park", "	Class I - Protected Forest Reserve", "	Class VI - Virgin Jungle Reserve", "	Class VII - Wildlife Reserve", "Wildlife Sanctuary"),
 		name = "PA Designation") +
 	coord_sf(crs = st_crs(32650)) +
 	xlab("Latitude") +
@@ -181,7 +181,7 @@ plot_for <- ggplot() +
 	ylim(455000, 815000) +
 	ggtitle("Forest cover") +
 	theme_bw()
-plot_for	
+plot_pa
 
 
 
