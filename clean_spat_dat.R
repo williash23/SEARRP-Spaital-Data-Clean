@@ -21,6 +21,16 @@ library(sf)
 
 
 
+path <- "C:/Users/saraw/Documents/SEARRP"
+path_spat_dat_raw <- paste(path, "raw_spat_data", sep = "/")
+path_spat_dat_proc <- paste(path, "processed_spat_data", sep = "/")
+path_df_dat <- paste(path, "processed_excel_data", sep = "/")
+setwd(path)
+
+
+
+
+
 #  General map and extent layers
 
 #  Basic information on the bounding box of Sabah (could be used for cropping) and the CRS that can be used 
@@ -35,7 +45,7 @@ sabah_UTM <- CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84
 
 
 #  Generate base map of Sabah polygons
-border_my <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/country_borders/MYS_adm2.shp")
+border_my <- shapefile(paste(path_spat_dat_raw, "country_borders/MYS_adm2.shp", sep = "/"))
 border_my$NAME_1 <- as.factor(border_my$NAME_1)
 border_sabah <- border_my[border_my@data$NAME_1 == "Sabah",]
 border_sabah_t <- spTransform(border_sabah, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
@@ -51,7 +61,7 @@ border_sarawak_sf <-  st_as_sf(border_sarawak_d)
 
 
 #  Generate base map of Indonesia (for mapping)
-border_in <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/country_borders/IDN_adm2.shp")
+border_in <- shapefile(paste(path_spat_dat_raw, "coutry_borders/IDN_adm2.shp", sep = "/")
 border_in$NAME_1 <- as.factor(border_in$NAME_1)
 border_kali <- border_in[border_in@data$NAME_1 == "Kalimantan Utara",]
 border_kali_t <- spTransform(border_kali, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
@@ -64,7 +74,7 @@ border_kali_d <- unionSpatialPolygons(border_kali_t, border_kali_t$ID_0)
 
 #  Logging road data from Gaveau et al. 2014, accessed at:
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
-log_rds <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/roads/REGIONBorneo_LoggingRoad_1970to2010_CIFOR.shp")
+log_rds <- shapefile(paste(path_spat_dat_raw, "roads/REGIONBorneo_LoggingRoad_1970to2010_CIFOR.shp", sep = "/"))
 log_rds_t <- spTransform(log_rds, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 log_rds_c <- crop(log_rds_t, border_sabah_d)
 log_rds_sf <- st_as_sf(log_rds_c) %>%
@@ -74,7 +84,7 @@ log_rds_sf <- st_as_sf(log_rds_c) %>%
 #  Protected areas, information from:
 #   http://services.arcgis.com/P8Cok4qAP1sTVE59/ArcGIS/rest/services/Protected_Area_of_Borneo/FeatureServer/0
 #   Generated GeoJSON data from a query on the arcGIS services website. 
-pa <- readOGR(dsn = "C:/Users/saraw/Documents/SEARRP/raw_spat_data/land_ownership/pa_geojson.GeoJSON", layer = "OGRGeoJSON")
+pa <- readOGR(dsn = paste(path_spat_dat_raw, "land_ownership/pa_geojson.GeoJSON", sep = "/"), layer = "OGRGeoJSON")
 pa_t <- spTransform(pa, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 pa_sf <- st_as_sf(pa_t)
 pa_sabah_sf <- pa_sf %>%
@@ -89,20 +99,19 @@ pa_sabah_sf$COUNTRY <- droplevels(pa_sabah_sf$COUNTRY)
 
 #  Forest cover data from Gaveau et al. 2016, accessed at: 
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
-for_cov <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif")
-for_cov_c <- mask(for_cov, border_sabah_d)
-#   Aggregate forest cover to polygons with same raster value
-for_cov_p <- polygonizer(for_cov_c)
+for_cov <- raster(paste(path_spat_dat_raw, "forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif", sep = "/"))
+for_cov_c <- raster::crop(for_cov, border_sabah_d)
+for_cov_m <- raster::mask(for_cov_c, border_sabah_d)
 
 
 #  HydroSHEDS river data, accessed at: http://hydrosheds.org/page/overview
-hydro_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp")
+hydro_vec <- shapefile(paste(path_spat_dat_raw, "hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp", sep = "/"))
 hydro_vec_t <- spTransform(hydro_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
 
 
 #  New river data from RT project data
-rivers_vec <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/from_RT/Rivers_catchments/detail_river_sabah.shp")
+rivers_vec <- shapefile(paste(path_spat_dat_raw, "from_RT/Rivers_catchments/detail_river_sabah.shp", sep = "/"))
 crs(rivers_vec) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
 rivers_vec_t <- spTransform(rivers_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 rivers_vec_c <- crop(rivers_vec_t, border_sabah_d)
@@ -110,7 +119,7 @@ rivers_vec_c <- crop(rivers_vec_t, border_sabah_d)
 
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
-elev_250m <- raster("C:/Users/saraw/Documents/SEARRP/raw_spat_data/dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif")
+elev_250m <- raster(paste(path_spat_dat_raw, "dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif", sep = "/"))
 elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 elev_250m_c <- crop(elev_250m_t, border_sabah_d)
 
@@ -139,21 +148,21 @@ coast_str <- st_intersection(border_sabah_sf_b, coast_diff)
 #   Distinguished only by spatial location - coarse distributions from IUCN
 
 #  Mammals from IUCN spatail data download center (http://www.iucnredlist.org/technical-documents/spatial-data)
-mammals <- shapefile("C:/Users/Sara/Desktop/SEARRP/spat_dat/TERRESTRIAL_MAMMALS/TERRESTRIAL_MAMMALS.shp")
+mammals <- shapefile(paste(path_spat_dat_raw, "TERRESTRIAL_MAMMALS/TERRESTRIAL_MAMMALS.shp", sep = "/"))
 mammals_c_tmp <- crop(mammals, sabah_bb_latlong)
 mammals_t <- spTransform(mammals_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 mammals_c <- crop(mammals_t, border_sabah_d)
 
 
 #  Amphibians from IUCN spatail data download center (http://www.iucnredlist.org/technical-documents/spatial-data)
-amphs <- shapefile("C:/Users/Sara/Desktop/SEARRP/spat_dat/AMPHIBIANS/AMPHIBIANS.shp")
+amphs <- shapefile(paste(path_spat_dat_raw, "AMPHIBIANS/AMPHIBIANS.shp", sep = "/"))
 amphs_c_tmp <- crop(amphs, sabah_bb_latlong)
 amphs_t <- spTransform(amphs_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-amphs_c <- crop(amphs_t, border_sabah_d)
+amphibians_c <- crop(amphs_t, border_sabah_d)
 
 
 #  Birds from BirdLife (Birds of the World)
-rl_birds <- st_read(dsn="C:/Users/saraw/Documents/SEARRP/raw_spat_dat/BOTW.gdb", layer = "All_Species") 
+rl_birds <- st_read(dsn=paste(path_spat_dat_raw, "BOTW.gdb", sep = "/"), layer = "All_Species") 
 #  Join spatial data set (which contains birds from all countries) to data frame of MY species (
 #   all taxa, all spp other than least concern) only, to obtain a data frame of bird species that only occur in MY 
 #   Must do this first step because the spatial object is SO large.
@@ -188,23 +197,22 @@ plot_pa
 
 #  Save these files to work with later
 
-save(pa_sabah_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/pa_sabah_sf.Rdata")
-save(hydro_vec_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/hydro_vec_c.Rdata")
-save(coast_str, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/coast_str.Rdata")
-save(log_rds_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/log_rds_sf.Rdata")
-writeRaster(for_cov_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/for_cov_c.grd")
-writeOGR(for_cov_p,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "for_cov_p", driver="ESRI Shapefile")
-save(border_sabah_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_d.Rdata")
-save(border_sabah_sf, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sabah_sf.Rdata")
-save(border_sarawak_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_sarawak_d.Rdata")
-save(border_kali_d, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/border_kali_d.Rdata")
+save(pa_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_sabah_sf.Rdata", sep = "/"))
+save(hydro_vec_c, file = paste(path_spat_dat_proc, "trans_crop_proj/hydro_vec_c.Rdata", sep = "/"))
+save(coast_str, file = paste(path_spat_dat_proc, "trans_crop_proj/coast_str.Rdata", sep = "/"))
+save(log_rds_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/log_rds_sf.Rdata", sep = "/"))
+writeRaster(for_cov_m, paste(path_spat_dat_proc, "trans_crop_proj/for_cov_m.grd", sep = "/"))
+save(border_sabah_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_d.Rdata", sep = "/"))
+save(border_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_sf.Rdata", sep = "/"))
+save(border_sarawak_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sarawak_d.Rdata", sep = "/"))
+save(border_kali_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_kali_d.Rdata", sep = "/"))
 
-save(mammals_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
-save(amphs_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
-save(birds_c, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/birds_c.Rdata")
-writeOGR(mammals_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "mammals_c", driver="ESRI Shapefile")
-writeOGR(amphs_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "amphs_c", driver="ESRI Shapefile")
-writeOGR(birds_c,"C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj", "birds_sp", driver="ESRI Shapefile")
+save(mammals_c, file = paste(path_spat_dat_proc, "trans_crop_proj/mammals_c.Rdata", sep = "/"))
+save(amphibians_c, file = paste(path_spat_dat_proc, "trans_crop_proj/amphibians_c.Rdata", sep = "/"))
+save(birds_c, file = paste(path_spat_dat_proc, "trans_crop_proj/birds_c.Rdata", sep = "/"))
+writeOGR(mammals_c, paste(path_spat_dat_proc, "trans_crop_proj", sep = "/"), "mammals_c", driver="ESRI Shapefile")
+writeOGR(amphibians_c, paste(path_spat_dat_proc, "trans_crop_proj", sep = "/"), "amphibians_c" , driver="ESRI Shapefile")
+writeOGR(birds_c, paste(path_spat_dat_proc, "trans_crop_proj", sep = "/"), "birds_sp", driver="ESRI Shapefile")
 
 
 

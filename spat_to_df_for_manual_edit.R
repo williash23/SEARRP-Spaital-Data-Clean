@@ -10,47 +10,57 @@ library(tidyverse)
 library(stringr)
 library(sf)
 
+path <- "C:/Users/saraw/Documents/SEARRP"
+path_spat_dat <- paste(path, "processed_spat_data", sep = "/")
+path_df_dat <- paste(path, "processed_excel_data", sep = "/")
+setwd(path)
+
 
 #  Load species distirbution data using 'sf' package
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/mammals_c.Rdata")
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/amphs_c.Rdata")
-load(file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/trans_crop_proj/birds_c.Rdata")
+load(file = paste(path_spat_dat, "trans_crop_proj/mammals_c.Rdata", sep = "/"))
+load(file = paste(path_spat_dat, "trans_crop_proj/amphibians_c.Rdata", sep = "/"))
+load(file = paste(path_spat_dat, "trans_crop_proj/birds_c.Rdata", sep = "/"))
 
 #  Convert shapefiles to sf_object (simple feature) for easy use with dplyr, ggplot, etc.
 #  	Filter only species that are threatened (other than Least concern) 
 sf_mammals_threat <- st_as_sf(mammals_c) %>%
-	filter(code != "LC") %>%
-	filter(binomial != "Melogale everetti") %>%
-	select(-citation)
+	dplyr::filter(code != "LC") %>%
+	#dplyr::filter(binomial != "Melogale everetti") %>%
+	dplyr::select(-citation)
 	
 	####  NOTE: the shapefile from the IUCN spatial data for Melogale everetti is incorrect.
-	####   Must leave this spp out for the loop to work.
+	####   Must leave this spp out for the loop to work. 
+	####  UPDATE: 9/15/17: Have updated functions so that they do not fail when these
+	####   spp are present - so now can be left in for consistency.
 
-	sf_amphs_threat <- st_as_sf(amphs_c) %>%
-	filter(code != "LC") %>%
-	filter(binomial != "Limnonectes ibanorum") %>%
-	filter(binomial != "Limnonectes rhacodus") %>%
-	filter(binomial != "Pelophryne signata") %>%
-	filter(binomial != "Rhacophorus fasciatus") %>%
-	select(-citation)
+sf_amphibians_threat <- st_as_sf(amphibians_c) %>%
+	dplyr::filter(code != "LC") %>%
+	#dplyr::filter(binomial != "Limnonectes rhacodus") %>%
+	#dplyr::filter(binomial != "Pelophryne signata") %>%
+	#dplyr::filter(binomial != "Rhacophorus fasciatus") %>%
+	dplyr::select(-citation)
 	
 	####  NOTE: the shapefile from the IUCN spatial data for Limnonectes ibanorum, Limnonectes rhacodus, 
 	####   Rhacophorus fasciatus, andPelophryne signata shows that these species ranges barely overlap Sabah 
 	####   and thus does not have any part that falls within the elevational constraints. Must leave this spp out 
 	####   for the loop to work.
+	####  UPDATE: 9/15/17: Have updated functions so that they do not fail when these
+	####   spp are present - so now can be left in for consistency.
+
 
 iucn_dat <- read.csv("C:/Users/saraw/Documents/SEARRP/raw_excel_data/iucn_all.csv")	%>%
-	select(binomial, class, order, family)
+	dplyr::select(binomial, class, order, family)
 sf_birds_threat_tmp <- st_as_sf(birds_c) %>%
-	select(id_no = SISID, binomial = SCINAME, subspecies = result.subspecies, subpop = result.subpopulation,
+	dplyr::select(id_no = SISID, binomial = SCINAME, subspecies = result.subspecies, subpop = result.subpopulation,
 			   RL_assess_year = DATE_, RL_code = result.category, shape_Leng = Shape_Length, 
 			   shape_Area = Shape_Area) 
 sf_birds_threat <- sf_birds_threat_tmp %>%
 	left_join(iucn_dat, by = "binomial")
 	
-#saveRDS(sf_mammals_threat, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_mammals_threat.rds")
-#saveRDS(sf_amphs_threat, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_amphs_threat.rds")
-#saveRDS(sf_birds_threat, file="C:/Users/saraw/Documents/SEARRP/processed_spat_data/sf_birds_threat.rds")
+#save(sf_mammals_threat, file = paste(path_spat_dat, "spp_ranges_no_constraints/sf_mammals_threat.Rdata", sep = "/"))
+#save(sf_amphibians_threat, file = paste(path_spat_dat, "spp_ranges_no_constraints/sf_amphibians_threat.Rdata", sep = "/"))
+#save(sf_birds_threat, file = paste(path_spat_dat, "spp_ranges_no_constraints/sf_birds_threat.Rdata", sep = "/"))
+
 
 
 #  Write to csv to manually go through with IUCN data and collect info on 
@@ -60,18 +70,18 @@ df_mammals_threat <- sf_mammals_threat %>%
 	arrange(binomial, shape_Leng)
 st_geometry(df_mammals_threat) <- NULL
 
-df_amphs_threat <- sf_amphs_threat %>%
+df_amphibians_threat <- sf_amphibians_threat %>%
 	arrange(binomial, shape_Leng)
-st_geometry(df_amphs_threat) <- NULL
+st_geometry(df_amphibians_threat) <- NULL
 
 df_birds_threat <- sf_birds_threat %>%
 	arrange(binomial, shape_Leng)
 st_geometry(df_birds_threat) <- NULL
 
-#write.csv(df_mammals_threat , file = "sabah_mammals_threatened_tmp.csv")	
-#write.csv(df_amphs_threat, file = "sabah_amphibians_threatened_tmp.csv")	
-#write.csv(df_birds_threat, file = "sabah_birds_threatened_tmp.csv")	
-#  Manually edited csv file will drop _tpm in file name
+#write.csv(df_mammals_threat , file =  paste(path_df_dat, "spp_data/sabah_mammals_threatened_tmp.csv", sep"/"))
+#write.csv(df_amphibians_threat, file = paste(path_df_dat, "spp_data/sabah_amphibians_threatened_tmp.csv", sep"/"))
+#write.csv(df_birds_threat, file = paste(path_df_dat, "spp_data/sabah_birds_threatened_tmp.csv", sep"/"))
+#  Manually edited csv file will drop _tmp in file name
 
 ####  NOTE: if no constraint information is given from IUCN on elevation, range is input manually
 ####   as 0-4095m, or 0 as minimum for elevation ranges "up to XXm", or 4095m 
