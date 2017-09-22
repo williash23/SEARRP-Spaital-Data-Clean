@@ -1,5 +1,5 @@
 #  Sara Williams
-#  June 6, 2017
+#  June 6, 2017; last updated Septemeber 18, 2017
 #  Importing availble Sabah spatial data and species distribution data, 
 #  transforming to UTM and croping to only Sabah.
 
@@ -68,6 +68,8 @@ border_kali_t <- spTransform(border_kali, CRS("+proj=utm +zone=50 +datum=WGS84 +
 border_kali_d <- unionSpatialPolygons(border_kali_t, border_kali_t$ID_0)
 
 
+#  Load border data for use in other processing
+load(paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_d.Rdata", sep = "/"))
 
 
 #  Development layers
@@ -95,6 +97,34 @@ pa_sabah_sf$DESIG <- droplevels(pa_sabah_sf$DESIG)
 pa_sabah_sf$COUNTRY <- droplevels(pa_sabah_sf$COUNTRY)
 
 
+#  New parks and wildlife sanctuary data from RT project data
+pa_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Parks_wildlife_sanctuaries/Sabah Parks (BRSO).shp", sep = "/"))
+crs(pa_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+pa_rt_t <- spTransform(pa_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+pa_rt_c <- crop(pa_rt_t, border_sabah_d)
+pa_rt_sf <- st_as_sf(pa_rt_c)
+
+wl_sanc_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Parks_wildlife_sanctuaries/Wildlife Sanctuaries (BRSO).shp", sep = "/"))
+crs(wl_sanc_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+wl_sanc_rt_t <- spTransform(wl_sanc_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+wl_sanc_rt_c <- crop(wl_sanc_rt_t, border_sabah_d)
+wl_sanc_rt_sf <- st_as_sf(wl_sanc_rt_c)
+
+
+#  New forest reserve and FMU data from RT project data
+fmu_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Forest_reserves_FMUs/Forest Management Units (FMU) boundaries (BRSO).shp", sep = "/"))
+crs(fmu_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+fmu_rt_t <- spTransform(fmu_rt , CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+fmu_rt_c <- crop(fmu_rt_t, border_sabah_d)
+fmu_rt_sf <- st_as_sf(fmu_rt_c)
+
+for_res_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Forest_reserves_FMUs/Forest Reserves classes 1-7 (BRSO).shp", sep = "/"))
+crs(for_res_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+for_res_rt_t <- spTransform(for_res_rt , CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+for_res_rt_c <- crop(for_res_rt_t, border_sabah_d)
+for_res_rt_sf <- st_as_sf(for_res_rt_c)
+
+
 #  Environmental layers
 
 #  Forest cover data from Gaveau et al. 2016, accessed at: 
@@ -102,6 +132,15 @@ pa_sabah_sf$COUNTRY <- droplevels(pa_sabah_sf$COUNTRY)
 for_cov <- raster(paste(path_spat_dat_raw, "forest_cover/REGBorneo_ForestCover_2016_CIFOR.tif", sep = "/"))
 for_cov_c <- raster::crop(for_cov, border_sabah_d)
 for_cov_m <- raster::mask(for_cov_c, border_sabah_d)
+
+
+#  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
+#   accessed at: https://lta.cr.usgs.gov/GMTED2010
+elev_250m <- raster(paste(path_spat_dat_raw, "dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif", sep = "/"))
+elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+elev_250m_c <- crop(elev_250m_t, border_sabah_d)
+elev_250m_m <- raster::mask(elev_250m_c, border_sabah_d)
+elev_rs <- resample(elev_250m, for_cov, "bilinear")
 
 
 #  HydroSHEDS river data, accessed at: http://hydrosheds.org/page/overview
@@ -115,13 +154,7 @@ rivers_vec <- shapefile(paste(path_spat_dat_raw, "from_RT/Rivers_catchments/deta
 crs(rivers_vec) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
 rivers_vec_t <- spTransform(rivers_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 rivers_vec_c <- crop(rivers_vec_t, border_sabah_d)
-
-
-#  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
-#   accessed at: https://lta.cr.usgs.gov/GMTED2010
-elev_250m <- raster(paste(path_spat_dat_raw, "dem/GMTED2010/7_5_arc_sec/10s090e_20101117_gmted_mea075.tif", sep = "/"))
-elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
-elev_250m_c <- crop(elev_250m_t, border_sabah_d)
+rivers_sf <- st_as_sf(rivers_vec_c)
 
 
 #   Sabah coastline
@@ -141,6 +174,14 @@ border_sabah_b <- buffer(border_sabah_l, 10)
 border_sabah_sf_b <- st_as_sf(border_sabah_b)
 coast_str <- st_intersection(border_sabah_sf_b, coast_diff)
 
+
+#  Buffers around water features
+buff_dist <- 50
+rivers_sf_b <- st_buffer(rivers_sf, buff dist)
+coast_b <- st_buffer(coast_str, budd_dist - 10) # coast line already includes a 10m buffer from coast line creation
+all_water <- st_union(rivers_b, coast_b)
+all_water_sp <- as(all_water, "Spatial")
+rivers_sp <- as(rivers_b, "Spatial")
 
 
 
@@ -197,11 +238,19 @@ plot_pa
 
 #  Save these files to work with later
 
+save(for_res_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/for_res_rt_sf.Rdata", sep = "/"))
+save(fmu_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/fmu_rt_sf.Rdata", sep = "/"))
+save(wl_sanc_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/wl_sanc_rt_sf.Rdata", sep = "/"))
+save(pa_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_rt_sf.Rdata", sep = "/"))
 save(pa_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_sabah_sf.Rdata", sep = "/"))
-save(hydro_vec_c, file = paste(path_spat_dat_proc, "trans_crop_proj/hydro_vec_c.Rdata", sep = "/"))
-save(coast_str, file = paste(path_spat_dat_proc, "trans_crop_proj/coast_str.Rdata", sep = "/"))
 save(log_rds_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/log_rds_sf.Rdata", sep = "/"))
+
+save(coast_str, file = paste(path_spat_dat_proc, "trans_crop_proj/coast_str.Rdata", sep = "/"))
+save(hydro_vec_c, file = paste(path_spat_dat_proc, "trans_crop_proj/hydro_vec_c.Rdata", sep = "/"))
 writeRaster(for_cov_m, paste(path_spat_dat_proc, "trans_crop_proj/for_cov_m.grd", sep = "/"))
+writeRaster(elev_250m_m, paste(path_spat_dat_proc, "trans_crop_proj/elev_250m_m.grd", sep = "/"))
+writeRaster(elev_rs, paste(path_spat_dat_proc, "trans_crop_proj/elev_rs.grd", sep = "/"))
+
 save(border_sabah_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_d.Rdata", sep = "/"))
 save(border_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_sf.Rdata", sep = "/"))
 save(border_sarawak_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sarawak_d.Rdata", sep = "/"))
