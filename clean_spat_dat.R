@@ -82,7 +82,98 @@ log_rds_c <- crop(log_rds_t, border_sabah_d)
 log_rds_sf <- st_as_sf(log_rds_c) %>%
 	st_intersection(st_as_sf(border_sabah_d))
 
+base_rds_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Existing_roads/Base_roads_(BRSO).shp", sep = "/"))
+crs(base_rds_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+base_rds_rt_t <- spTransform(base_rds_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+base_rds_rt_c <- crop(base_rds_rt_t, border_sabah_d)
+base_rds_rt_sf <- st_as_sf(base_rds_rt_c) %>%
+	st_intersection(st_as_sf(border_sabah_d))
+
+main_rds_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Existing_roads/Main_Roads.shp", sep = "/"))
+crs(main_rds_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+main_rds_rt_t <- spTransform(main_rds_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+main_rds_rt_c <- crop(main_rds_rt_t, border_sabah_d)
+main_rds_rt_sf <- st_as_sf(main_rds_rt_c) %>%
+	st_intersection(st_as_sf(border_sabah_d))
+
 	
+	
+	
+#  Use function below to import, project, crop, and save many development files from RT.
+#tcp_fun <- function(sp_f, save_f, sp_n){
+	sp_tmp <- shapefile(sp_f)
+	crs(sp_tmp) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
+	sp_tmp_t <- spTransform(sp_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+	sp_tmp_c <- crop(sp_tmp_t, border_sabah_d)
+	sp_tmp_sf <- st_as_sf(sp_tmp_c) %>%
+		st_intersection(st_as_sf(border_sabah_d))
+	assign(sp_n, sp_tmp_sf)
+	#}
+		
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/New_Port.shp", sep = "/")
+sp_n = "new_seaport" # had to do manually because seaport locations in ocean
+save(new_seaport, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/new_seaport.Rdata", sep = "/"))
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Existing_Port.shp", sep = "/")
+sp_n = "exist_seaport" # had to do manually because seaport locations in ocean
+save(exist_seaport, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/exist_seaport.Rdata", sep = "/"))
+	
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Existing_Airport.shp", sep = "/")
+sp_n = "exist_airport"
+save(exist_airport, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/exist_airport.Rdata", sep = "/"))
+	
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Major_Upgraded_Transportation_Hub.shp", sep = "/")
+sp_n = "hub_upgrade"
+save(hub_upgrade, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/hub_upgrade.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_Airfield.shp", sep = "/")
+sp_n = "prop_airfield"
+save(prop_airfield, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_airfield.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Search_Area_for_New_Airport.shp", sep = "/")
+sp_n = "new_airport_search_area"
+save(new_airport_search_area, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/new_airport_search_area.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Existing_Road.shp", sep = "/")
+sp_n = "exist_rd"
+save(exist_rd, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/exist_rd.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_New_Upgraded_Airport.shp", sep = "/")
+sp_n = "prop_new_upgraded_airport"	
+save(prop_new_upgraded_airport, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_new_upgraded_airport.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Upgraded_Road.shp", sep = "/")
+sp_n = "rd_upgraded"
+save(rd_upgraded, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/rd_upgraded.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_Existing_Road_to_be_Upgraded_as_Highway_(4_lanes_-_80M).shp", sep = "/")
+sp_n = "prop_rd_upgrade_hwy"			
+save(prop_rd_upgrade_hwy, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_rd_upgrade_hwy.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/On-going_New_Road_Project.shp", sep = "/")
+sp_n = "new_rd"		
+save(new_rd, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/new_rd.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_New_Highway_(80M).shp", sep = "/")
+sp_n = "prop_new_hwy"			
+save(prop_new_hwy, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_new_hwy.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_New_Road_(40M).shp", sep = "/")
+sp_n = "prop_new_rd"	
+save(prop_new_rd, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_new_rd.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_New_Railway_Line.shp", sep = "/")
+sp_n = "prop_new_rail"			
+save(prop_new_rail, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_new_rail.Rdata", sep = "/"))	
+
+sp_f = paste(path_spat_dat_raw, "from_RT/Existing_proposed_infrastructure/Proposed_Upgraded_Railway_Line.shp", sep = "/")
+sp_n = "prop_upgrade_rail"		
+save(prop_upgrade_rail, file = paste(path_spat_dat_proc, "trans_crop_proj/dev_areas/prop_upgrade_rail.Rdata", sep = "/"))	
+	
+
+
+
+
 #  Protected areas, information from:
 #   http://services.arcgis.com/P8Cok4qAP1sTVE59/ArcGIS/rest/services/Protected_Area_of_Borneo/FeatureServer/0
 #   Generated GeoJSON data from a query on the arcGIS services website. 
@@ -95,6 +186,7 @@ pa_sabah_sf$DESIG[pa_sabah_sf$DESIG == "Wildlife Sancturary"] <- "Wildlife Sanct
 pa_sabah_sf$DESIG[pa_sabah_sf$DESIG == "Protection Forest"] <- "Protected Forest"
 pa_sabah_sf$DESIG <- droplevels(pa_sabah_sf$DESIG)
 pa_sabah_sf$COUNTRY <- droplevels(pa_sabah_sf$COUNTRY)
+
 
 
 #  New parks and wildlife sanctuary data from RT project data
@@ -141,6 +233,10 @@ elev_250m_t <- projectRaster(elev_250m, crs = "+proj=utm +zone=50 +datum=WGS84 +
 elev_250m_c <- crop(elev_250m_t, border_sabah_d)
 elev_250m_m <- raster::mask(elev_250m_c, border_sabah_d)
 elev_rs <- resample(elev_250m, for_cov, "bilinear")
+
+#  Calculate slope from resampled elevation raster
+elev_rs <- raster(paste(path_spat_dat, "trans_crop_proj/elev_rs.grd", sep = "/"))
+slp <- terrain(elev_rs, opt = 'slope', unit='degrees')
 
 
 #  HydroSHEDS river data, accessed at: http://hydrosheds.org/page/overview
@@ -244,6 +340,8 @@ save(wl_sanc_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/wl_sanc_rt
 save(pa_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_rt_sf.Rdata", sep = "/"))
 save(pa_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_sabah_sf.Rdata", sep = "/"))
 save(log_rds_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/log_rds_sf.Rdata", sep = "/"))
+save(base_rds_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/base_rds_rt_sf.Rdata", sep = "/"))
+save(main_rds_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/main_rds_rt_sf.Rdata", sep = "/"))
 
 save(coast_str, file = paste(path_spat_dat_proc, "trans_crop_proj/coast_str.Rdata", sep = "/"))
 save(hydro_vec_c, file = paste(path_spat_dat_proc, "trans_crop_proj/hydro_vec_c.Rdata", sep = "/"))
