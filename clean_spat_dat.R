@@ -21,7 +21,7 @@ library(sf)
 
 
 
-path <- "C:/Users/saraw/Documents/SEARRP"
+path <- "C:/Users/saraw/Documents/SEARRP_Analyses"
 path_spat_dat_raw <- paste(path, "raw_spat_data", sep = "/")
 path_spat_dat_proc <- paste(path, "processed_spat_data", sep = "/")
 path_df_dat <- paste(path, "processed_excel_data", sep = "/")
@@ -67,6 +67,7 @@ border_kali <- border_in[border_in@data$NAME_1 == "Kalimantan Utara",]
 border_kali_t <- spTransform(border_kali, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 border_kali_d <- unionSpatialPolygons(border_kali_t, border_kali_t$ID_0)
 
+border_ssk_sf <- st_union(border_sabah_sf, border_kali_sf, border_sarawak_sf, by_feature = TRUE)
 
 #  Load border data for use in other processing
 load(paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_d.Rdata", sep = "/"))
@@ -94,12 +95,15 @@ crs(main_rds_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=
 main_rds_rt_t <- spTransform(main_rds_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 main_rds_rt_c <- crop(main_rds_rt_t, border_sabah_d)
 main_rds_rt_sf <- st_as_sf(main_rds_rt_c) %>%
-	st_intersection(st_as_sf(border_sabah_d))
+	st_intersection(st_as_sf(border_sabah_d)) %>%
+	mutate(value = 5)
 
 	
 	
 	
 #  Protected areas, information from:
+
+#  Sabah
 #   http://services.arcgis.com/P8Cok4qAP1sTVE59/ArcGIS/rest/services/Protected_Area_of_Borneo/FeatureServer/0
 #   Generated GeoJSON data from a query on the arcGIS services website. 
 pa <- readOGR(dsn = paste(path_spat_dat_raw, "land_ownership/pa_geojson.GeoJSON", sep = "/"), layer = "OGRGeoJSON")
@@ -112,9 +116,22 @@ pa_sabah_sf$DESIG[pa_sabah_sf$DESIG == "Protection Forest"] <- "Protected Forest
 pa_sabah_sf$DESIG <- droplevels(pa_sabah_sf$DESIG)
 pa_sabah_sf$COUNTRY <- droplevels(pa_sabah_sf$COUNTRY)
 
+#  Sarawak and Indonesia
+#  From WDPA accessed January 2018:
+#   https://protectedplanet.net/
+all_mys_pa <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses/raw_spat_data/WDPA/WDPA_Jan2018_MYS-shapefile-polygons.shp")
+all_mys_pa_t <- spTransform(all_mys_pa, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+all_mys_pa_sf <- st_as_sf(all_mys_pa_t)
+sarawak_pa_sf <- st_intersection(all_mys_pa_sf, border_sarawak_sf)
+
+all_ind_pa <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses/raw_spat_data/WDPA/WDPA_Jan2018_IDN-shapefile-polygons.shp")
+all_ind_pa_t <- spTransform(all_ind_pa, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+all_ind_pa_sf <- st_as_sf(all_ind_pa_t)
+kali_pa_sf <- st_intersection(all_ind_pa_sf, border_kali_sf)
 
 
-#  New parks and wildlife sanctuary data from RT project data
+
+#  New parks and wildlife sanctuary data from RT project data 
 pa_rt <- shapefile(paste(path_spat_dat_raw, "from_RT/Parks_wildlife_sanctuaries/Sabah Parks (BRSO).shp", sep = "/"))
 crs(pa_rt) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 +units=m +no_defs" 
 pa_rt_t <- spTransform(pa_rt, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
@@ -150,6 +167,10 @@ for_cov <- raster(paste(path_spat_dat_raw, "forest_cover/REGBorneo_ForestCover_2
 for_cov_c <- raster::crop(for_cov, border_sabah_d)
 for_cov_m <- raster::mask(for_cov_c, border_sabah_d)
 
+border_ssk_sp <- as(border_ssk_sf, "Spatial")
+for_cov_ssk_tmp <-raster::crop(for_cov, border_ssk_sp)
+for_cov_ssk <- raster::mask(for_cov_ssk_tmp, border_ssk_sp)
+
 
 #  These rasters are from "Global Multi-resolution Terrain Elevation Data 2010", which replaces GTOPO30
 #   accessed at: https://lta.cr.usgs.gov/GMTED2010
@@ -164,10 +185,19 @@ elev_rs <- raster(paste(path_spat_dat, "trans_crop_proj/elev_rs.grd", sep = "/")
 slp <- terrain(elev_rs, opt = 'slope', unit='degrees')
 
 
+
+#  Ocean cover
+ocean_cov <- raster(paste(path_spat_dat_raw, "ocean/occurrence_110E_10N.tif", sep = "/"))
+ocean_cov_t <- projectRaster(ocean_cov, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+
+
+
+
 #  HydroSHEDS river data, accessed at: http://hydrosheds.org/page/overview
 hydro_vec <- shapefile(paste(path_spat_dat_raw, "hydro/hydroSHEDS/as_riv_15s/as_riv_15s.shp", sep = "/"))
 hydro_vec_t <- spTransform(hydro_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 hydro_vec_c <- crop(hydro_vec_t, border_sabah_d)
+
 
 
 #  New river data from RT project data
@@ -176,6 +206,7 @@ crs(rivers_vec) <- "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0
 rivers_vec_t <- spTransform(rivers_vec, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 rivers_vec_c <- crop(rivers_vec_t, border_sabah_d)
 rivers_sf <- st_as_sf(rivers_vec_c)
+
 
 
 #   Sabah coastline
@@ -320,18 +351,23 @@ save(fmu_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/fmu_rt_sf.Rdat
 save(wl_sanc_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/wl_sanc_rt_sf.Rdata", sep = "/"))
 save(pa_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_rt_sf.Rdata", sep = "/"))
 save(pa_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/pa_sabah_sf.Rdata", sep = "/"))
+save(sarawak_pa_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/sarawak_pa_sf.Rdata", sep = "/"))
+save(kali_pa_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/kali_pa_sf.Rdata", sep = "/"))
 save(log_rds_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/log_rds_sf.Rdata", sep = "/"))
 save(base_rds_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/base_rds_rt_sf.Rdata", sep = "/"))
 save(main_rds_rt_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/main_rds_rt_sf.Rdata", sep = "/"))
 
 save(coast_str, file = paste(path_spat_dat_proc, "trans_crop_proj/coast_str.Rdata", sep = "/"))
+writeRaster(ocean_cov_t, paste(path_spat_dat_proc, "trans_crop_proj/ocean_r.grd", sep = "/"))
 save(hydro_vec_c, file = paste(path_spat_dat_proc, "trans_crop_proj/hydro_vec_c.Rdata", sep = "/"))
 writeRaster(for_cov_m, paste(path_spat_dat_proc, "trans_crop_proj/for_cov_m.grd", sep = "/"))
+writeRaster(for_cov_ssk, paste(path_spat_dat_proc, "trans_crop_proj/for_cov_ssk.grd", sep = "/"))
 writeRaster(elev_250m_m, paste(path_spat_dat_proc, "trans_crop_proj/elev_250m_m.grd", sep = "/"))
 writeRaster(elev_rs, paste(path_spat_dat_proc, "trans_crop_proj/elev_rs.grd", sep = "/"))
 
 save(border_sabah_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_d.Rdata", sep = "/"))
 save(border_sabah_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sabah_sf.Rdata", sep = "/"))
+save(border_ssk_sf, file = paste(path_spat_dat_proc, "trans_crop_proj/border_ssk_sf.Rdata", sep = "/"))
 save(border_sarawak_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_sarawak_d.Rdata", sep = "/"))
 save(border_kali_d, file = paste(path_spat_dat_proc, "trans_crop_proj/border_kali_d.Rdata", sep = "/"))
 
@@ -351,13 +387,13 @@ writeOGR(birds_c, paste(path_spat_dat_proc, "trans_crop_proj", sep = "/"), "bird
 #  Other potential spatial data sources
 
 #  Industrial plantations, from: M. Strimas (via email), is from 2010
-land_own <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/land_ownership/REGIONBorneo_IndustrialPlantation_2010_CIFOR.shp")
+land_own <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses_Analyses/raw_spat_data/land_ownership/REGIONBorneo_IndustrialPlantation_2010_CIFOR.shp")
 land_own_t <- spTransform(land_own, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 land_own_c <- crop(land_own_t, border_sabah_d)
 
 
 #  This file (downloaded from Gaveau et al. 2016) has error when trying to crop to just the Sabah region
-orig_land_cov <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/land_ownership/REGBorneo_OriginOfLandConvertedToITPAndIOPPComplexTrajectory_1973to2016_CIFOR/REGBorneo_OriginOfLandConvertedToITPAndIOPPComplexTrajectory_1973to2016_CIFOR.shp")
+orig_land_cov <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses_Analyses/raw_spat_data/land_ownership/REGBorneo_OriginOfLandConvertedToITPAndIOPPComplexTrajectory_1973to2016_CIFOR/REGBorneo_OriginOfLandConvertedToITPAndIOPPComplexTrajectory_1973to2016_CIFOR.shp")
 orig_land_cov_b <- gBuffer(land_own, byid=TRUE, width=0)
 orig_land_cov_t <- spTransform(orig_land_cov_b, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
@@ -367,21 +403,21 @@ orig_land_cov_c <- crop(orig_land_cov_t, border_sabah_d)
 #  Protected area and other land ownership data from M. Strimas via email or Gaveau et al. 2014, accessed at:
 #   https://data.cifor.org/dataset.xhtml?persistentId=doi:10.17528/CIFOR/DATA.00049
 #  This (obtained from M. Strimas) appears to be a plantation land ownership shapefile, not protected areas
-pa <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/land_ownership/REGIONBorneo_ProtectedArea_2010_CIFOR/REGIONBorneo_ProtectedArea_2010_CIFOR.shp")
+pa <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses/raw_spat_data/land_ownership/REGIONBorneo_ProtectedArea_2010_CIFOR/REGIONBorneo_ProtectedArea_2010_CIFOR.shp")
 pa_c_tmp <- crop(pa, sabah_bb_latlong)
 pa_t <- spTransform(pa_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 pa_c <- crop(pa_t, border_sabah_d)
 
 
 #  More coarse resolution GMTED2010 data
-# elev_1k <- raster("C:/Users/sara.williams/Desktop/SEARRP/spat_dat/dem/GMTED2010/30_arc_sec/10s090e_20101117_gmted_mea300.tif")
+# elev_1k <- raster("C:/Users/sara.williams/Desktop/SEARRP_Analyses/spat_dat/dem/GMTED2010/30_arc_sec/10s090e_20101117_gmted_mea300.tif")
 # elev_1k_t <- projectRaster(elev_1k, crs = "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 # elev_1k_c <- crop(elev_1k_t, border_sabah_d)
 
 
 # #  Hydro1k elevation data: This is fewer rivers and streams than represented by hydroSHEDS
 # #   Convert the e00 to SpatialLines
-# e00 <- ("C:/Users/saraw/Documents/SEARRP/raw_spat_data/hydro/hydro1k/au_str.e00")
+# e00 <- ("C:/Users/saraw/Documents/SEARRP_Analyses/raw_spat_data/hydro/hydro1k/au_str.e00")
 # e00toavc(e00, "au_str")
 # arc <- get.arcdata(".", "au_str")
 # hydro1k <- st_as_sf(ArcObj2SLDF(arc))
@@ -392,7 +428,7 @@ pa_c <- crop(pa_t, border_sabah_d)
 
 
 # #  Surrounding ocean polygon
-# ocean <- shapefile("C:/Users/saraw/Documents/SEARRP/raw_spat_data/ocean/ne_10m_ocean.shp")
+# ocean <- shapefile("C:/Users/saraw/Documents/SEARRP_Analyses/raw_spat_data/ocean/ne_10m_ocean.shp")
 # ocean_c_tmp <- crop(ocean, sabah_bb_latlong)
 # ocean_t <- spTransform(ocean_c_tmp, CRS("+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 # ocean_sf <- st_as_sf(ocean_t)

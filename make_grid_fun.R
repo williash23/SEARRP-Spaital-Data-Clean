@@ -52,6 +52,15 @@ make_grid <- function(x, type, cell_width, cell_area, clip = FALSE) {
   return(g)
 }
 
+
+
+
+
+
+
+
+
+
 #  Example use
 ecuador <- getData(name = "GADM", country = "ECU", level = 0, 
                    path = "data/hexagonal-grids/") %>% 
