@@ -226,3 +226,46 @@ st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
 		dplyr::filter(IN == 1)
 	#save(deram_grid_w_pa, file = "C:/Users/saraw/Desktop/5_5_18/deram_grid_w_pa.Rdata")
 	
+	
+	
+	# ----------------------
+	#  Connectivity
+	sw_sabah_b <- st_buffer(sfi_idris_u, 45000)
+	
+	bb_tmp <- st_bbox(sw_sabah_grid)	
+	bb_tmp[3] <- 477809
+	
+	st_as_sfc.bbox = function(bb) {
+		box = st_polygon(list(matrix(bb[c(1, 2, 3, 2, 3, 4, 1, 4, 1, 2)], ncol=2, byrow=TRUE)))
+		st_sfc(box, crs=st_crs(bb))
+		}
+	
+	bb <- st_as_sfc.bbox(bb_tmp)
+	
+	sw_sabah_c <- st_intersection(sw_sabah_b, bb)
+	sw_sabah_df_tmp <- as.data.frame(st_intersects(sa_grid, sw_sabah_c, sparse = FALSE))
+	names(sw_sabah_df_tmp)[1] <- "IN_tmp"
+	sw_sabah_grid_df <- sw_sabah_df_tmp %>%
+		dplyr::mutate(IN = ifelse(IN_tmp == "FALSE", 0, 1)) %>%
+		dplyr::select(IN)
+	sw_sabah_grid <- sa_grid %>%
+		bind_cols(sw_sabah_grid_df) %>%
+		dplyr::filter(IN == 1) %>%
+		mutate(num = row_number())
+	
+	
+
+	
+	#save(sw_sabah_grid, file = "C:/Users/saraw/Desktop/5_5_18/sw_sabah_grid.Rdata")
+		
+		
+	map2 <- ggplot() +
+		geom_sf(data = sw_sabah_grid, colour = "grey50", fill = "grey50", alpha = 0.7) +
+		coord_sf(crs = st_crs(32650)) +
+		xlab("Latitude") +
+		ylab("Longitude") +
+		xlim(315000, 755000) +
+		ylim(455000, 815000) +
+		theme_bw()
+	map2
+	
